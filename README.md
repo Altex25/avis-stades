@@ -64,15 +64,61 @@ export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
 
 ## Lancer en local
 
+### 1. Démarrer les services
+
+Le dossier `infra/` décrit les services dont l'application a besoin :
+
+| Service | Rôle | Adresse sur le poste |
+| --- | --- | --- |
+| PostgreSQL 17 + PostGIS 3.6 | Base de données | `localhost:5432` |
+| Garage | Stockage des photos, compatible S3 | `http://localhost:3900` |
+| Mailpit | Capture des e-mails envoyés | SMTP `localhost:1025`, interface http://localhost:8025 |
+
+Au premier lancement, copier le fichier d'exemple des variables (le fichier `.env` n'est jamais versionné ;
+ses valeurs sont réservées au poste local et ne doivent pas être réutilisées ailleurs) :
+
+```bash
+cp infra/.env.example infra/.env
+```
+
+Puis démarrer les services :
+
+```bash
+docker compose -f infra/docker-compose.yml up -d
+```
+
+Le conteneur `garage-init` prépare le stockage puis s'arrête : il crée le bucket des photos et sa clé d'accès.
+`docker compose -f infra/docker-compose.yml ps -a` doit montrer `postgres` et `mailpit` en état `healthy`,
+`garage` en état `Up` et `garage-init` en état `Exited (0)`.
+
+Pour arrêter les services :
+
+```bash
+docker compose -f infra/docker-compose.yml down
+```
+
+Ajouter `-v` à cette commande supprime aussi les données, pour repartir d'une base et d'un stockage vides.
+
+### 2. Lancer l'API
+
+```bash
+cd backend
+./mvnw spring-boot:run -Dspring-boot.run.profiles=local
+```
+
+Le profil `local` lit `infra/.env` et se connecte aux services ci-dessus.
+L'API répond sur http://localhost:8080 ; http://localhost:8080/actuator/health doit renvoyer `{"status":"UP"}`.
+
+Dans IntelliJ IDEA, lancer `AvisStadesApplication` avec le profil actif `local`.
+
+### 3. Lancer la PWA
+
 ```bash
 cd frontend
 npm start
 ```
 
 La PWA est alors disponible sur http://localhost:4200.
-
-Le backend a besoin d'une base PostgreSQL : l'environnement Docker Compose arrive au prochain jalon.
-D'ici là, `TestAvisStadesApplication` (dans `backend/src/test`) démarre l'API avec une base jetable en conteneur.
 
 ## Licence
 
