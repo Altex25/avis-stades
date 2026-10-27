@@ -53,14 +53,31 @@ npm run build
 npm test -- --watch=false
 ```
 
+### Intégration continue
+
+Chaque pull request et chaque push sur `develop` ou `main` déclenchent les vérifications suivantes, qui tournent aussi chaque nuit :
+
+| Vérification | Contenu |
+| --- | --- |
+| Backend | `./mvnw verify` : tests JUnit, Testcontainers, frontières des modules, couverture JaCoCo |
+| Frontend | tests Vitest avec couverture, build de production |
+| SonarQube Cloud | qualité, duplication et couverture du code, porte qualité |
+| CodeQL | analyse de sécurité du code Java et TypeScript |
+| Dependency review | refus d'une dépendance ajoutée avec une faille haute ou critique (pull requests) |
+
+Les rapports de couverture sont générés en local par les mêmes commandes : `backend/target/site/jacoco/`
+et `frontend/coverage/` (`npm test -- --watch=false --coverage`).
+
 ### Tests du backend avec Colima
 
-Testcontainers ne détecte pas Colima tout seul. Exporter ces variables avant de lancer les tests :
+Testcontainers cherche Docker sur `/var/run/docker.sock`, qui pointe sur macOS vers `~/.docker/run/docker.sock`.
+Avec Colima, relier une fois pour toutes ce chemin au socket de Colima (sans Docker Desktop installé) :
 
 ```bash
-export DOCKER_HOST="unix://$HOME/.colima/default/docker.sock"
-export TESTCONTAINERS_DOCKER_SOCKET_OVERRIDE=/var/run/docker.sock
+mkdir -p ~/.docker/run && ln -sf ~/.colima/default/docker.sock ~/.docker/run/docker.sock
 ```
+
+Les tests fonctionnent ensuite depuis le terminal comme depuis l'IDE, sans variable d'environnement.
 
 ## Lancer en local
 
