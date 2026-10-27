@@ -26,10 +26,20 @@ Un module n'utilise un autre module que par son API publique ou en écoutant ses
 | `develop` | Branche par défaut, déployée en recette |
 | `main` | Production |
 
-Chaque ticket part de `develop` sur une branche courte et y revient par pull request.
-Une release passe de `develop` à `main` ; un tag `vX.Y.Z` fige alors la version.
-Chaque commit tient sur une ligne au format Conventional Commits et cite son ticket, par exemple
-`chore: initialize monorepo skeleton (#1)`.
+Chaque ticket part de `develop` sur une branche courte et y revient par une pull request fusionnée en squash.
+Le titre de la pull request devient le message du commit : une ligne au format Conventional Commits qui cite son
+ticket, par exemple `feat: submit a review (#15)`. Une vérification de la CI refuse tout autre format.
+
+Une release suit ces étapes :
+
+1. une pull request de `develop` vers `main`, fusionnée par un commit de fusion ;
+2. release-please ouvre sur `main` une pull request qui fixe la version et complète le `CHANGELOG.md` ;
+   sa fusion crée le tag `vX.Y.Z` et la release GitHub ;
+3. une pull request ouverte automatiquement de `main` vers `develop`, fusionnée par un commit de fusion,
+   passe `develop` à la version de développement suivante (`X.Y+1.0-SNAPSHOT`).
+
+Les deux branches exigent une pull request dont toutes les vérifications de la CI sont vertes.
+Le choix de ce modèle est expliqué dans [l'ADR 0001](documentation/adr/0001-branching-and-release-model.md).
 
 ## Prérequis
 
