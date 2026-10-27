@@ -32,11 +32,15 @@ ticket, par exemple `feat: submit a review (#15)`. Une vérification de la CI re
 
 Une release suit ces étapes :
 
-1. une pull request de `develop` vers `main`, fusionnée par un commit de fusion ;
+1. une pull request de `develop` vers `main`, intitulée `build(release): X.Y.Z` (type masqué dans le CHANGELOG)
+   et fusionnée par un commit de fusion ;
 2. release-please ouvre sur `main` une pull request qui fixe la version et complète le `CHANGELOG.md` ;
    sa fusion crée le tag `vX.Y.Z` et la release GitHub ;
-3. une pull request ouverte automatiquement de `main` vers `develop`, fusionnée par un commit de fusion,
-   passe `develop` à la version de développement suivante (`X.Y+1.0-SNAPSHOT`).
+3. une pull request ouverte automatiquement de `main` vers `develop` passe `develop` à la version de développement
+   suivante (`X.Y+1.0-SNAPSHOT`) ; elle se fusionne obligatoirement par un commit de fusion, jamais en squash.
+
+Les étapes 2 et 3 utilisent le secret `RELEASE_PLEASE_TOKEN` : un jeton fine-grained limité au dépôt, avec les permissions
+Contents, Issues, Pull requests et Workflows en lecture et écriture. Il expire et doit être renouvelé.
 
 Les deux branches exigent une pull request dont toutes les vérifications de la CI sont vertes.
 Le choix de ce modèle est expliqué dans [l'ADR 0001](documentation/adr/0001-branching-and-release-model.md).

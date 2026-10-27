@@ -26,6 +26,7 @@ updates:
       angular:
         patterns: ["@angular/*", "@angular-devkit/*"]
       npm:
+        exclude-patterns: ["@angular/*", "@angular-devkit/*"]
         update-types: [minor, patch]
 
   - package-ecosystem: github-actions
