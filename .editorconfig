@@ -1,4 +1,3 @@
-# Editor configuration, see https://editorconfig.org
 root = true
 
 [*]
@@ -9,7 +8,6 @@ indent_size = 2
 insert_final_newline = true
 trim_trailing_whitespace = true
 
-# Spring Initializr conventions for the backend
 [*.{java,xml}]
 indent_style = tab
 indent_size = 4
