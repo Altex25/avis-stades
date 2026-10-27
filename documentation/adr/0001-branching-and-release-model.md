@@ -18,7 +18,8 @@ fixed version number, and the history must link every change to its GitHub issue
   **squash**: one commit per issue, whose message is the pull request title, a one-line Conventional Commit
   ending with the issue number, for example `feat: submit a review (#15)`.
 - A release goes from `develop` to `main` through a pull request merged with a **merge commit**, so `main`
-  keeps one commit per issue.
+  keeps one commit per issue. Its title is `build(release): X.Y.Z`: GitHub copies the title into the merge
+  commit body, and the `build` type is hidden from the CHANGELOG.
 - On `main`, release-please opens a release pull request that sets the version and writes the CHANGELOG
   from these commits. Merging it creates the `vX.Y.Z` tag and the GitHub release.
 - A workflow then opens a pull request from `main` back to `develop`, which sets the next development
@@ -37,7 +38,8 @@ fixed version number, and the history must link every change to its GitHub issue
 - Squashing the pull request back from `main` would make the version line conflict at the next release.
 - Release-please and the back-merge workflow use a fine-grained token (`RELEASE_PLEASE_TOKEN`, limited to
   this repository), because pull requests opened with the default Actions token do not trigger the CI
-  required to merge them. The token expires and must be renewed.
+  required to merge them. It needs Contents, Issues, Pull requests and Workflows in read and write: the
+  branches it creates contain workflow files. The token expires and must be renewed.
 
 ## Alternatives considered
 
