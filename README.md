@@ -67,6 +67,37 @@ npm run build
 npm test -- --watch=false
 ```
 
+### Construire le livrable unique
+
+L'API sert la PWA compilée ([ADR 0002](documentation/adr/0002-single-deployable.md)). Le profil Maven `frontend`
+installe Node, construit la PWA et l'embarque dans le jar :
+
+```bash
+cd backend
+./mvnw -Pfrontend package
+```
+
+Le jar `backend/target/avis-stades-<version>.jar` contient l'API et la PWA. Une fois les services démarrés
+(voir « Lancer en local »), il se lance avec :
+
+```bash
+java -jar backend/target/avis-stades-*.jar --spring.profiles.active=local
+```
+
+### Test de fumée
+
+Le test de fumée Playwright vérifie, sur le livrable lancé, que la PWA lit le catalogue des stades dans l'API,
+que le lien d'évitement fonctionne et qu'axe ne relève aucune violation WCAG A ou AA. Avec l'application lancée
+sur http://localhost:8080 :
+
+```bash
+cd frontend
+npx playwright install chromium
+npm run e2e
+```
+
+La variable `E2E_BASE_URL` permet de viser une autre adresse.
+
 ### Intégration continue
 
 Chaque pull request et chaque push sur `develop` ou `main` déclenchent les vérifications suivantes, qui tournent aussi chaque nuit :
@@ -78,6 +109,7 @@ Chaque pull request et chaque push sur `develop` ou `main` déclenchent les vér
 | SonarQube Cloud | qualité, duplication et couverture du code, porte qualité |
 | CodeQL | analyse de sécurité du code Java et TypeScript |
 | Dependency review | refus d'une dépendance ajoutée avec une faille haute ou critique (pull requests) |
+| Smoke test | livrable unique lancé sur PostGIS, parcours Playwright et contrôle d'accessibilité axe |
 
 Les rapports de couverture sont générés en local par les mêmes commandes : `backend/target/site/jacoco/`
 et `frontend/coverage/` (`npm test -- --watch=false --coverage`).
@@ -138,7 +170,7 @@ cd backend
 ```
 
 Le profil `local` lit `infra/.env` et se connecte aux services ci-dessus.
-L'API répond sur http://localhost:8080 ; http://localhost:8080/actuator/health doit renvoyer `{"status":"UP"}`.
+L'API répond sur http://localhost:8080 ; http://localhost:8080/actuator/health doit renvoyer le statut `UP`.
 
 Dans IntelliJ IDEA, lancer `AvisStadesApplication` avec le profil actif `local`.
 
@@ -149,7 +181,8 @@ cd frontend
 npm start
 ```
 
-La PWA est alors disponible sur http://localhost:4200.
+La PWA est alors disponible sur http://localhost:4200, avec rechargement à chaque modification. Elle transmet
+les appels `/api` et `/actuator` à l'API lancée à l'étape 2 (`frontend/proxy.conf.json`).
 
 ## Licence
 

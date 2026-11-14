@@ -16,6 +16,9 @@
 		<java.version>25</java.version>
 		<spring-modulith.version>2.1.2</spring-modulith.version>
 		<jacoco.version>0.8.16</jacoco.version>
+		<frontend-maven-plugin.version>2.0.2</frontend-maven-plugin.version>
+		<node.version>v24.22.0</node.version>
+		<frontend.directory>${project.basedir}/../frontend</frontend.directory>
 	</properties>
 	<dependencies>
 		<dependency>
@@ -169,5 +172,74 @@
 			</plugin>
 		</plugins>
 	</build>
+
+	<profiles>
+		<profile>
+			<id>frontend</id>
+			<build>
+				<plugins>
+					<plugin>
+						<groupId>com.github.eirslett</groupId>
+						<artifactId>frontend-maven-plugin</artifactId>
+						<version>${frontend-maven-plugin.version}</version>
+						<configuration>
+							<workingDirectory>${frontend.directory}</workingDirectory>
+							<installDirectory>${project.build.directory}</installDirectory>
+							<nodeVersion>${node.version}</nodeVersion>
+						</configuration>
+						<executions>
+							<execution>
+								<id>install-node</id>
+								<goals>
+									<goal>install-node-and-npm</goal>
+								</goals>
+							</execution>
+							<execution>
+								<id>npm-ci</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>ci</arguments>
+								</configuration>
+							</execution>
+							<execution>
+								<id>npm-build</id>
+								<goals>
+									<goal>npm</goal>
+								</goals>
+								<configuration>
+									<arguments>run build</arguments>
+									<environmentVariables>
+										<NG_CLI_ANALYTICS>false</NG_CLI_ANALYTICS>
+									</environmentVariables>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+					<plugin>
+						<artifactId>maven-resources-plugin</artifactId>
+						<executions>
+							<execution>
+								<id>copy-pwa</id>
+								<phase>process-resources</phase>
+								<goals>
+									<goal>copy-resources</goal>
+								</goals>
+								<configuration>
+									<outputDirectory>${project.build.outputDirectory}/static</outputDirectory>
+									<resources>
+										<resource>
+											<directory>${frontend.directory}/dist/avis-stades/browser</directory>
+										</resource>
+									</resources>
+								</configuration>
+							</execution>
+						</executions>
+					</plugin>
+				</plugins>
+			</build>
+		</profile>
+	</profiles>
 
 </project>
