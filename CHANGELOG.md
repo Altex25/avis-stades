@@ -1,5 +1,31 @@
 # Changelog
 
+## [0.2.0](https://github.com/Altex25/avis-stades/compare/v0.1.0...v0.2.0) (2026-11-16)
+
+
+### Features
+
+* add end-to-end walking skeleton ([#5](https://github.com/Altex25/avis-stades/issues/5)) ([#50](https://github.com/Altex25/avis-stades/issues/50)) ([470e1d4](https://github.com/Altex25/avis-stades/commit/470e1d4a545ae8a7e73dcd0fad19a236046bccec))
+
+
+### Bug Fixes
+
+* **deps:** update undici to 8.12.4 and list required checks in ADR 0001 ([#4](https://github.com/Altex25/avis-stades/issues/4)) ([#51](https://github.com/Altex25/avis-stades/issues/51)) ([a302898](https://github.com/Altex25/avis-stades/commit/a302898ad5ac97b5e1ff17878b2c102d93fbc372))
+
+
+### Continuous Integration
+
+* deploy develop to the Clever Cloud recette environment ([#6](https://github.com/Altex25/avis-stades/issues/6)) ([#52](https://github.com/Altex25/avis-stades/issues/52)) ([1c832a9](https://github.com/Altex25/avis-stades/commit/1c832a9190c8f4eab5080e2e23a490e5d1b4ad10))
+
+
+### Miscellaneous
+
+* **deps:** bump the actions group across 1 directory with 4 updates ([#47](https://github.com/Altex25/avis-stades/issues/47)) ([d132604](https://github.com/Altex25/avis-stades/commit/d13260472f99b276968bd17243af46ef4e009f27))
+* **deps:** bump the angular group in /frontend with 10 updates ([#44](https://github.com/Altex25/avis-stades/issues/44)) ([b8845c9](https://github.com/Altex25/avis-stades/commit/b8845c92f6c9fff8ed4167fa2bd3f8b5c82be807))
+* **deps:** bump the npm group across 1 directory with 7 updates ([#49](https://github.com/Altex25/avis-stades/issues/49)) ([e54c3ff](https://github.com/Altex25/avis-stades/commit/e54c3ff65050da93fc6facf8fa0024a6793d7ceb))
+* document release conventions and group Angular updates ([#4](https://github.com/Altex25/avis-stades/issues/4)) ([6ecb495](https://github.com/Altex25/avis-stades/commit/6ecb495f8ab567fc881adf966cb047b3ef7d6b23))
+* document release conventions and group Angular updates ([#4](https://github.com/Altex25/avis-stades/issues/4)) ([fae0f8a](https://github.com/Altex25/avis-stades/commit/fae0f8a9df2e288f9d895fb57b7542fa8247685f))
+
 ## 0.1.0 (2026-10-27)
 
 
