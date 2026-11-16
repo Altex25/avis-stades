@@ -1,0 +1,36 @@
+<h1 class="text-2xl font-bold text-slate-900">Avis Stades</h1>
+<p class="mt-2 text-slate-700">
+  Les expériences des supporters dans les stades : coût du déplacement, notes et conseils.
+</p>
+
+<section class="mt-8" aria-labelledby="stadiums-title">
+  <h2 id="stadiums-title" class="text-xl font-semibold text-slate-900">Stades référencés</h2>
+  <div role="status" class="mt-3">
+    @if (stadiums.isLoading()) {
+      <p class="text-slate-700">Chargement des stades…</p>
+    } @else if (stadiums.error()) {
+      <p class="text-red-800">
+        Les stades n'ont pas pu être chargés. Réessayez dans quelques instants.
+      </p>
+    } @else if (stadiums.value().length === 0) {
+      <p class="text-slate-700">Aucun stade n'est encore référencé.</p>
+    } @else {
+      @let count = stadiums.value().length;
+      <p class="text-slate-700">
+        {{ count }} {{ count === 1 ? 'stade référencé' : 'stades référencés' }}.
+      </p>
+    }
+  </div>
+  @if (stadiums.hasValue() && stadiums.value().length > 0) {
+    <ul role="list" class="mt-3 divide-y divide-slate-200">
+      @for (stadium of stadiums.value(); track stadium.id) {
+        <li class="py-2">
+          <span class="font-medium text-slate-900">{{ stadium.name }}</span><span
+            class="text-slate-700"
+            >, {{ stadium.city }}{{ club(stadium) }}</span
+          >
+        </li>
+      }
+    </ul>
+  }
+</section>

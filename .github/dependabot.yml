@@ -26,6 +26,7 @@ updates:
       angular:
         patterns: ["@angular/*", "@angular-devkit/*"]
       npm:
+        exclude-patterns: ["@angular/*", "@angular-devkit/*"]
         update-types: [minor, patch]
 
   - package-ecosystem: github-actions
@@ -40,3 +41,13 @@ updates:
     groups:
       actions:
         patterns: ["*"]
+
+  - package-ecosystem: npm
+    directory: /.github/deploy
+    target-branch: develop
+    schedule:
+      interval: weekly
+      day: monday
+    commit-message:
+      prefix: chore
+      include: scope

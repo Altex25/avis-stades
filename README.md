@@ -32,11 +32,15 @@ ticket, par exemple `feat: submit a review (#15)`. Une vérification de la CI re
 
 Une release suit ces étapes :
 
-1. une pull request de `develop` vers `main`, fusionnée par un commit de fusion ;
+1. une pull request de `develop` vers `main`, intitulée `build(release): X.Y.Z` (type masqué dans le CHANGELOG)
+   et fusionnée par un commit de fusion ;
 2. release-please ouvre sur `main` une pull request qui fixe la version et complète le `CHANGELOG.md` ;
    sa fusion crée le tag `vX.Y.Z` et la release GitHub ;
-3. une pull request ouverte automatiquement de `main` vers `develop`, fusionnée par un commit de fusion,
-   passe `develop` à la version de développement suivante (`X.Y+1.0-SNAPSHOT`).
+3. une pull request ouverte automatiquement de `main` vers `develop` passe `develop` à la version de développement
+   suivante (`X.Y+1.0-SNAPSHOT`) ; elle se fusionne obligatoirement par un commit de fusion, jamais en squash.
+
+Les étapes 2 et 3 utilisent le secret `RELEASE_PLEASE_TOKEN` : un jeton fine-grained limité au dépôt, avec les permissions
+Contents, Issues, Pull requests et Workflows en lecture et écriture. Il expire et doit être renouvelé.
 
 Les deux branches exigent une pull request dont toutes les vérifications de la CI sont vertes.
 Le choix de ce modèle est expliqué dans [l'ADR 0001](documentation/adr/0001-branching-and-release-model.md).
@@ -63,6 +67,37 @@ npm run build
 npm test -- --watch=false
 ```
 
+### Construire le livrable unique
+
+L'API sert la PWA compilée ([ADR 0002](documentation/adr/0002-single-deployable.md)). Le profil Maven `frontend`
+installe Node, construit la PWA et l'embarque dans le jar :
+
+```bash
+cd backend
+./mvnw -Pfrontend package
+```
+
+Le jar `backend/target/avis-stades.jar` contient l'API et la PWA. Une fois les services démarrés
+(voir « Lancer en local »), il se lance avec :
+
+```bash
+java -jar backend/target/avis-stades.jar --spring.profiles.active=local
+```
+
+### Test de fumée
+
+Le test de fumée Playwright vérifie, sur le livrable lancé, que la PWA lit le catalogue des stades dans l'API,
+que le lien d'évitement fonctionne et qu'axe ne relève aucune violation WCAG A ou AA. Avec l'application lancée
+sur http://localhost:8080/avis-stades/ :
+
+```bash
+cd frontend
+npx playwright install chromium
+npm run e2e
+```
+
+La variable `E2E_BASE_URL` permet de viser une autre adresse.
+
 ### Intégration continue
 
 Chaque pull request et chaque push sur `develop` ou `main` déclenchent les vérifications suivantes, qui tournent aussi chaque nuit :
@@ -74,6 +109,7 @@ Chaque pull request et chaque push sur `develop` ou `main` déclenchent les vér
 | SonarQube Cloud | qualité, duplication et couverture du code, porte qualité |
 | CodeQL | analyse de sécurité du code Java et TypeScript |
 | Dependency review | refus d'une dépendance ajoutée avec une faille haute ou critique (pull requests) |
+| Smoke test | livrable unique lancé sur PostGIS, parcours Playwright et contrôle d'accessibilité axe |
 
 Les rapports de couverture sont générés en local par les mêmes commandes : `backend/target/site/jacoco/`
 et `frontend/coverage/` (`npm test -- --watch=false --coverage`).
@@ -134,7 +170,8 @@ cd backend
 ```
 
 Le profil `local` lit `infra/.env` et se connecte aux services ci-dessus.
-L'API répond sur http://localhost:8080 ; http://localhost:8080/actuator/health doit renvoyer `{"status":"UP"}`.
+L'application vit sous le chemin `/avis-stades`, en local comme en recette : l'API répond sur
+http://localhost:8080/avis-stades/api et http://localhost:8080/avis-stades/actuator/health doit renvoyer le statut `UP`.
 
 Dans IntelliJ IDEA, lancer `AvisStadesApplication` avec le profil actif `local`.
 
@@ -145,7 +182,21 @@ cd frontend
 npm start
 ```
 
-La PWA est alors disponible sur http://localhost:4200.
+La PWA est alors disponible sur http://localhost:4200/avis-stades/, avec rechargement à chaque modification. Elle transmet
+les appels `/avis-stades/api` et `/avis-stades/actuator` à l'API lancée à l'étape 2 (`frontend/proxy.conf.json`).
+
+## Recette
+
+La recette tourne sur Clever Cloud, en région Paris, à l'adresse https://recette.alexandrepy.fr/avis-stades/
+([ADR 0006](documentation/adr/0006-hosting-on-clever-cloud.md)).
+
+- **Déploiement continu** : chaque fusion sur `develop` dont la CI est verte est déployée par le workflow
+  « Deploy recette », qui attend la sonde de santé puis lance le test de fumée sur l'URL publique.
+- **Arrêt le soir** : le workflow « Recette power » arrête la recette chaque soir à 19 h UTC. Pour la relancer,
+  exécuter ce workflow avec l'action `start` (onglet Actions de GitHub) ou fusionner une nouvelle PR.
+- **Profil Spring** : `recette`, qui lit les variables `POSTGRESQL_ADDON_*` fournies par l'add-on PostgreSQL.
+- **Identifiants** : secrets `CLEVER_TOKEN` et `CLEVER_SECRET`, variables `CLEVER_APP_ID` et `RECETTE_URL`,
+  dans l'environnement GitHub « recette ».
 
 ## Licence
 

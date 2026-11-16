@@ -1,0 +1,7 @@
+{
+  "name": "avis-stades-deploy",
+  "private": true,
+  "dependencies": {
+    "clever-tools": "5.3.0"
+  }
+}
