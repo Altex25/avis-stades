@@ -25,7 +25,8 @@ fixed version number, and the history must link every change to its GitHub issue
 - A workflow then opens a pull request from `main` back to `develop`, which sets the next development
   version (`X.Y+1.0-SNAPSHOT`). It is merged with a merge commit.
 - Both branches are protected by rulesets with no bypass: pull request required, conversations resolved,
-  the seven CI checks required, no force push, no deletion. `main` only allows merge commits; `develop`
+  every CI check required (Backend, Frontend, SonarQube Cloud, Dependency review, both CodeQL analyses,
+  PR title, and Smoke test since #5), no force push, no deletion. `main` only allows merge commits; `develop`
   allows squash, and merge commits for the pull request coming back from `main`.
 
 ## Consequences
