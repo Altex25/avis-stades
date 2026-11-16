@@ -1,0 +1,52 @@
+name: Recette power
+
+on:
+  schedule:
+    - cron: "0 19 * * *"
+  workflow_dispatch:
+    inputs:
+      action:
+        description: Start or stop the recette application
+        type: choice
+        options: [start, stop]
+        default: start
+
+permissions: {}
+
+concurrency:
+  group: recette
+  cancel-in-progress: false
+
+jobs:
+  power:
+    name: ${{ inputs.action == 'start' && 'Start' || 'Stop' }} recette
+    if: github.ref == 'refs/heads/develop'
+    runs-on: ubuntu-24.04
+    timeout-minutes: 20
+    environment:
+      name: recette
+      url: ${{ vars.RECETTE_URL }}
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          sparse-checkout: .github/deploy
+          persist-credentials: false
+      - uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version: "24"
+      - name: Install Clever Tools
+        working-directory: .github/deploy
+        run: npm ci --ignore-scripts
+      - name: Start or stop the application
+        working-directory: .github/deploy
+        env:
+          CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
+          CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+          CLEVER_APP_ID: ${{ vars.CLEVER_APP_ID }}
+          ACTION: ${{ inputs.action || 'stop' }}
+        run: |
+          if [ "$ACTION" = "start" ]; then
+            npx --no-install clever restart --app "$CLEVER_APP_ID" --quiet
+          else
+            npx --no-install clever stop --app "$CLEVER_APP_ID"
+          fi

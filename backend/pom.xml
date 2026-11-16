@@ -146,6 +146,7 @@
 	</dependencyManagement>
 
 	<build>
+		<finalName>avis-stades</finalName>
 		<plugins>
 			<plugin>
 				<groupId>org.springframework.boot</groupId>

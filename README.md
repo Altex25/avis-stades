@@ -77,11 +77,11 @@ cd backend
 ./mvnw -Pfrontend package
 ```
 
-Le jar `backend/target/avis-stades-<version>.jar` contient l'API et la PWA. Une fois les services démarrés
+Le jar `backend/target/avis-stades.jar` contient l'API et la PWA. Une fois les services démarrés
 (voir « Lancer en local »), il se lance avec :
 
 ```bash
-java -jar backend/target/avis-stades-*.jar --spring.profiles.active=local
+java -jar backend/target/avis-stades.jar --spring.profiles.active=local
 ```
 
 ### Test de fumée
@@ -183,6 +183,18 @@ npm start
 
 La PWA est alors disponible sur http://localhost:4200, avec rechargement à chaque modification. Elle transmet
 les appels `/api` et `/actuator` à l'API lancée à l'étape 2 (`frontend/proxy.conf.json`).
+
+## Recette
+
+La recette tourne sur Clever Cloud, en région Paris ([ADR 0006](documentation/adr/0006-hosting-on-clever-cloud.md)).
+
+- **Déploiement continu** : chaque fusion sur `develop` dont la CI est verte est déployée par le workflow
+  « Deploy recette », qui attend la sonde de santé puis lance le test de fumée sur l'URL publique.
+- **Arrêt le soir** : le workflow « Recette power » arrête la recette chaque soir à 19 h UTC. Pour la relancer,
+  exécuter ce workflow avec l'action `start` (onglet Actions de GitHub) ou fusionner une nouvelle PR.
+- **Profil Spring** : `recette`, qui lit les variables `POSTGRESQL_ADDON_*` fournies par l'add-on PostgreSQL.
+- **Identifiants** : secrets `CLEVER_TOKEN` et `CLEVER_SECRET`, variables `CLEVER_APP_ID` et `RECETTE_URL`,
+  dans l'environnement GitHub « recette ».
 
 ## Licence
 
