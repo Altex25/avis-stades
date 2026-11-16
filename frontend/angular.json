@@ -31,7 +31,8 @@
             ],
             "styles": [
               "src/styles.css"
-            ]
+            ],
+            "baseHref": "/avis-stades/"
           },
           "configurations": {
             "production": {

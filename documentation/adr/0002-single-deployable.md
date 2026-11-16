@@ -18,6 +18,9 @@ session cookies with CSRF protection, which work best when the PWA and the API s
   version given in the pom (aligned with `.nvmrc`), runs `npm ci` and `npm run build`, and the resources plugin
   copies `frontend/dist/avis-stades/browser` into the jar. `./mvnw -Pfrontend package` builds the deliverable.
 - Without the profile, `./mvnw verify` builds and tests the API alone, so the backend CI stays fast.
+- The whole application lives under the context path `/avis-stades`, in every environment, so that it can share a
+  domain with other sites through path routing; the PWA is built with the matching base href (`/avis-stades/`)
+  and calls the API with relative URLs. One jar therefore runs unchanged everywhere.
 - The API is under `/api`, the health probe under `/actuator/health`. Any other path without a file extension is
   forwarded to `index.html`, so a deep link or a page refresh opens the right PWA route.
 - Server-side rendering is postponed.

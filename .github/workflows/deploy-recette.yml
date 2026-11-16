@@ -1,0 +1,98 @@
+name: Deploy recette
+
+on:
+  workflow_run:
+    workflows: [CI]
+    types: [completed]
+    branches: [develop]
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+concurrency:
+  group: recette
+  cancel-in-progress: false
+
+jobs:
+  deploy:
+    name: Deploy to recette
+    if: >-
+      (github.event_name == 'workflow_dispatch' && github.ref == 'refs/heads/develop') ||
+      (github.event.workflow_run.conclusion == 'success' &&
+       github.event.workflow_run.event == 'push' &&
+       github.event.workflow_run.head_repository.full_name == github.repository)
+    runs-on: ubuntu-24.04
+    timeout-minutes: 30
+    environment:
+      name: recette
+      url: ${{ vars.RECETTE_URL }}
+    env:
+      RECETTE_URL: ${{ vars.RECETTE_URL }}
+      NG_CLI_ANALYTICS: "false"
+    steps:
+      - uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          ref: ${{ github.event.workflow_run.head_sha || github.sha }}
+          fetch-depth: 0
+          persist-credentials: false
+      - name: Skip a commit that is no longer the tip of develop
+        id: freshness
+        run: |
+          if git merge-base --is-ancestor "$(git rev-parse origin/develop)" HEAD; then
+            echo "deploy=true" >> "$GITHUB_OUTPUT"
+          else
+            echo "A newer commit is on develop; its own run deploys it."
+            echo "deploy=false" >> "$GITHUB_OUTPUT"
+          fi
+      - if: steps.freshness.outputs.deploy == 'true'
+        uses: actions/setup-node@949feb2413d6458794dcd2491c4babbbce0c15c1 # v7.1.0
+        with:
+          node-version-file: .nvmrc
+          cache: npm
+          cache-dependency-path: |
+            .github/deploy/package-lock.json
+            frontend/package-lock.json
+      - if: steps.freshness.outputs.deploy == 'true'
+        name: Install Clever Tools
+        working-directory: .github/deploy
+        run: npm ci --ignore-scripts
+      - if: steps.freshness.outputs.deploy == 'true'
+        name: Deploy the checked-out commit
+        env:
+          CLEVER_TOKEN: ${{ secrets.CLEVER_TOKEN }}
+          CLEVER_SECRET: ${{ secrets.CLEVER_SECRET }}
+          CLEVER_APP_ID: ${{ vars.CLEVER_APP_ID }}
+        run: |
+          clever=.github/deploy/node_modules/.bin/clever
+          "$clever" link "$CLEVER_APP_ID"
+          git switch --create recette-deploy
+          "$clever" deploy --branch recette-deploy --force --same-commit-policy restart --quiet
+      - if: steps.freshness.outputs.deploy == 'true'
+        name: Wait for the health probe
+        run: |
+          for _ in $(seq 1 60); do
+            curl -sf "$RECETTE_URL/actuator/health/readiness" && exit 0
+            sleep 5
+          done
+          exit 1
+      - if: steps.freshness.outputs.deploy == 'true'
+        name: Install the smoke test
+        working-directory: frontend
+        run: |
+          npm ci
+          npx playwright install --with-deps chromium
+      - if: steps.freshness.outputs.deploy == 'true'
+        name: Run the smoke test against recette
+        working-directory: frontend
+        env:
+          E2E_BASE_URL: ${{ vars.RECETTE_URL }}
+        run: npm run e2e
+      - if: failure()
+        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
+        with:
+          name: recette-smoke-test-report
+          path: |
+            frontend/playwright-report
+            frontend/test-results
+          retention-days: 7

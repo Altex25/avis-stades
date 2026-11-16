@@ -105,9 +105,9 @@ jobs:
           SPRING_DATASOURCE_USERNAME: avis_stades
           SPRING_DATASOURCE_PASSWORD: smoke-test-only
         run: |
-          nohup java -jar backend/target/avis-stades-*.jar > app.log 2>&1 &
+          nohup java -jar backend/target/avis-stades.jar > app.log 2>&1 &
           for _ in $(seq 1 60); do
-            curl -sf http://localhost:8080/actuator/health/readiness && exit 0
+            curl -sf http://localhost:8080/avis-stades/actuator/health/readiness && exit 0
             sleep 2
           done
           cat app.log

@@ -1,4 +1,4 @@
-/** Stadium as returned by `GET /api/stadiums`. */
+/** Stadium as returned by `GET api/stadiums`. */
 export interface StadiumSummary {
   id: string;
   name: string;

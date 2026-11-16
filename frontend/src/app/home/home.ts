@@ -8,7 +8,7 @@ import { StadiumSummary } from '../stadiums/stadium-summary';
   templateUrl: './home.html',
 })
 export class Home {
-  protected readonly stadiums = httpResource<StadiumSummary[]>(() => '/api/stadiums', {
+  protected readonly stadiums = httpResource<StadiumSummary[]>(() => 'api/stadiums', {
     defaultValue: [],
   });
 
