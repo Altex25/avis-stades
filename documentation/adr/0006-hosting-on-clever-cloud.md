@@ -24,9 +24,14 @@ The platform is a single Spring Boot jar that serves the PWA (ADR 0002) and need
   | `CC_MAVEN_PROFILES` | `frontend` | builds the PWA into the jar (ADR 0002) |
   | `CC_MAVEN_BUILD_GOAL` | `package -DskipTests` | tests already ran in CI; they need Docker |
   | `CC_RUN_COMMAND` | `java -XX:MaxRAMPercentage=70 -jar ${APP_HOME}/backend/target/avis-stades.jar` | starts the jar, not Maven |
-  | `CC_HEALTH_CHECK_PATH` | `/actuator/health/readiness` | deployment succeeds only when the application is ready |
+  | `CC_HEALTH_CHECK_PATH` | `/avis-stades/actuator/health/readiness` | deployment succeeds only when the application is ready |
   | `SPRING_PROFILES_ACTIVE` | `recette` | reads the `POSTGRESQL_ADDON_*` variables |
 
+- **Address**: `https://recette.alexandrepy.fr/avis-stades/`. The domain is registered at OVHcloud; the
+  `recette` subdomain is a CNAME to `domain.par.clever-cloud.com.`, and Clever Cloud routes the `/avis-stades`
+  path to the application without stripping it (ADR 0002). The apex domain stays at OVHcloud: serving
+  `alexandrepy.fr/avis-stades` would require pointing the whole domain, and the site it hosts, to Clever Cloud.
+  Production (T07) follows the same pattern at `https://app.alexandrepy.fr/avis-stades/`.
 - **Database**: PostgreSQL 17 add-on, plan XXS Tiny, linked to the application, which injects the connection
   variables. PostGIS is one of the default extensions; the first Flyway migration enables it. The connection
   requires TLS (`sslmode=require`).

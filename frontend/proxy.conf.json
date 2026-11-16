@@ -1,9 +1,9 @@
 {
-  "/api": {
+  "/avis-stades/api": {
     "target": "http://localhost:8080",
     "secure": false
   },
-  "/actuator": {
+  "/avis-stades/actuator": {
     "target": "http://localhost:8080",
     "secure": false
   }

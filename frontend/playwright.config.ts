@@ -1,5 +1,10 @@
 import { defineConfig, devices } from '@playwright/test';
 
+const baseURL = (process.env['E2E_BASE_URL'] ?? 'http://localhost:8080/avis-stades').replace(
+  /\/?$/,
+  '/',
+);
+
 export default defineConfig({
   testDir: './e2e',
   testMatch: '**/*.e2e.ts',
@@ -7,7 +12,7 @@ export default defineConfig({
   retries: process.env['CI'] ? 1 : 0,
   reporter: process.env['CI'] ? [['list'], ['html', { open: 'never' }]] : 'list',
   use: {
-    baseURL: process.env['E2E_BASE_URL'] ?? 'http://localhost:8080',
+    baseURL,
     locale: 'fr-FR',
     trace: 'retain-on-failure',
   },

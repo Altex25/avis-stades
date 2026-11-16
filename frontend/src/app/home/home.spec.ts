@@ -20,7 +20,7 @@ describe('Home', () => {
   async function render(answer: (request: ReturnType<HttpTestingController['expectOne']>) => void) {
     const fixture = TestBed.createComponent(Home);
     fixture.detectChanges();
-    answer(http.expectOne('/api/stadiums'));
+    answer(http.expectOne('api/stadiums'));
     await fixture.whenStable();
     fixture.detectChanges();
     return fixture.nativeElement as HTMLElement;

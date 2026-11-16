@@ -88,7 +88,7 @@ java -jar backend/target/avis-stades.jar --spring.profiles.active=local
 
 Le test de fumée Playwright vérifie, sur le livrable lancé, que la PWA lit le catalogue des stades dans l'API,
 que le lien d'évitement fonctionne et qu'axe ne relève aucune violation WCAG A ou AA. Avec l'application lancée
-sur http://localhost:8080 :
+sur http://localhost:8080/avis-stades/ :
 
 ```bash
 cd frontend
@@ -170,7 +170,8 @@ cd backend
 ```
 
 Le profil `local` lit `infra/.env` et se connecte aux services ci-dessus.
-L'API répond sur http://localhost:8080 ; http://localhost:8080/actuator/health doit renvoyer le statut `UP`.
+L'application vit sous le chemin `/avis-stades`, en local comme en recette : l'API répond sur
+http://localhost:8080/avis-stades/api et http://localhost:8080/avis-stades/actuator/health doit renvoyer le statut `UP`.
 
 Dans IntelliJ IDEA, lancer `AvisStadesApplication` avec le profil actif `local`.
 
@@ -181,12 +182,13 @@ cd frontend
 npm start
 ```
 
-La PWA est alors disponible sur http://localhost:4200, avec rechargement à chaque modification. Elle transmet
-les appels `/api` et `/actuator` à l'API lancée à l'étape 2 (`frontend/proxy.conf.json`).
+La PWA est alors disponible sur http://localhost:4200/avis-stades/, avec rechargement à chaque modification. Elle transmet
+les appels `/avis-stades/api` et `/avis-stades/actuator` à l'API lancée à l'étape 2 (`frontend/proxy.conf.json`).
 
 ## Recette
 
-La recette tourne sur Clever Cloud, en région Paris ([ADR 0006](documentation/adr/0006-hosting-on-clever-cloud.md)).
+La recette tourne sur Clever Cloud, en région Paris, à l'adresse https://recette.alexandrepy.fr/avis-stades/
+([ADR 0006](documentation/adr/0006-hosting-on-clever-cloud.md)).
 
 - **Déploiement continu** : chaque fusion sur `develop` dont la CI est verte est déployée par le workflow
   « Deploy recette », qui attend la sonde de santé puis lance le test de fumée sur l'URL publique.
