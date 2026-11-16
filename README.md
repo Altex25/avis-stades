@@ -37,7 +37,12 @@ Une release suit ces étapes :
 2. release-please ouvre sur `main` une pull request qui fixe la version et complète le `CHANGELOG.md` ;
    sa fusion crée le tag `vX.Y.Z` et la release GitHub ;
 3. une pull request ouverte automatiquement de `main` vers `develop` passe `develop` à la version de développement
-   suivante (`X.Y+1.0-SNAPSHOT`) ; elle se fusionne obligatoirement par un commit de fusion, jamais en squash.
+   suivante (`X.Y+1.0-SNAPSHOT`) ; le workflow active sa fusion automatique par commit de fusion, qui a lieu dès
+   que les vérifications sont vertes.
+
+Toutes les autres pull requests vers `develop` se fusionnent en squash. Le bouton de GitHub retient la dernière
+méthode utilisée : après une release, vérifier qu'il affiche bien « Squash and merge », ou fusionner en ligne de
+commande avec `gh pr merge <numéro> --squash`.
 
 Les étapes 2 et 3 utilisent le secret `RELEASE_PLEASE_TOKEN` : un jeton fine-grained limité au dépôt, avec les permissions
 Contents, Issues, Pull requests et Workflows en lecture et écriture. Il expire et doit être renouvelé.
