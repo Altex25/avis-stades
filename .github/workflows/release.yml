@@ -68,3 +68,4 @@ jobs:
           git commit -am "build(release): start $next development"
           git push origin "$branch"
           gh pr create --base develop --head "$branch" --title "build(release): merge $TAG into develop and start $next" --body ""
+          gh pr merge "$branch" --merge --auto --delete-branch

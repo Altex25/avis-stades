@@ -23,7 +23,8 @@ fixed version number, and the history must link every change to its GitHub issue
 - On `main`, release-please opens a release pull request that sets the version and writes the CHANGELOG
   from these commits. Merging it creates the `vX.Y.Z` tag and the GitHub release.
 - A workflow then opens a pull request from `main` back to `develop`, which sets the next development
-  version (`X.Y+1.0-SNAPSHOT`). It is merged with a merge commit.
+  version (`X.Y+1.0-SNAPSHOT`). The workflow enables auto-merge with a merge commit on it, so GitHub merges it as
+  soon as the required checks pass and nobody has to pick the merge-commit method by hand on `develop`.
 - Both branches are protected by rulesets with no bypass: pull request required, conversations resolved,
   every CI check required (Backend, Frontend, SonarQube Cloud, Dependency review, both CodeQL analyses,
   PR title, and Smoke test since #5), no force push, no deletion. `main` only allows merge commits; `develop`
@@ -35,7 +36,9 @@ fixed version number, and the history must link every change to its GitHub issue
   `-SNAPSHOT` on `develop`, the released version on `main` and in the tag.
 - `develop` accepts merge commits, so its history is no longer strictly linear. Using a merge commit for
   anything other than the pull request coming back from `main` is a mistake that the rules cannot prevent;
-  it is visible in the history and is caught when reviewing the pull request.
+  it is visible in the history and is caught when reviewing the pull request. It happened (#43, then #53 to
+  #61 right after the 0.2.0 release) because the GitHub merge button keeps the last method used; auto-merging
+  the pull request back from `main` removes the main occasion to pick that method by hand.
 - Squashing the pull request back from `main` would make the version line conflict at the next release.
 - Release-please and the back-merge workflow use a fine-grained token (`RELEASE_PLEASE_TOKEN`, limited to
   this repository), because pull requests opened with the default Actions token do not trigger the CI
